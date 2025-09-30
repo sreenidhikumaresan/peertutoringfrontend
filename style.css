@@ -1,0 +1,314 @@
+/* General Body Styles */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(120deg, #6e45e2, #88d3ce);
+  color: #fff;
+  margin: 0;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Centered Container for Login/Menu */
+.login-container {
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  padding: 2rem 3rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* Headings */
+h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #fff;
+}
+
+/* Input Fields */
+input[type="text"], input[type="password"], input[type="date"], input[type="time"], input[type="file"] {
+  width: 100%;
+  padding: 14px 20px;
+  margin-bottom: 1rem;
+  border: none;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+input:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Buttons */
+button {
+  background-color: #ff8c00;
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  width: 100%;
+  transition: background-color 0.3s;
+  margin-top: 1rem;
+}
+
+button:hover {
+  background-color: #e67e00;
+}
+
+/* Links below the button */
+.extra-links {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.extra-links a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: opacity 0.3s;
+}
+
+.extra-links a:hover {
+  opacity: 0.8;
+}
+
+/* Navigation Bar */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 1rem 2rem;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 1000;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.navbar-links a {
+  color: #fff;
+  text-decoration: none;
+  margin-left: 1.5rem;
+  font-size: 1rem;
+}
+
+/* Page Container (for pages with a navbar) */
+.page-container {
+  padding-top: 80px;
+  width: 100%;
+  max-width: 800px;
+  text-align: center;
+}
+
+/* Tutor Card Layout */
+.tutor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+  text-align: left;
+}
+
+.tutor-card {
+  background-color: rgba(255, 255, 255, 0.15);
+  padding: 1.5rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tutor-info h4 {
+  margin: 0 0 0.5rem 0;
+  color: #fff;
+}
+
+.tutor-info p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tutor-card button {
+  width: auto;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+}
+
+button.back-button {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+button.back-button:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background-color: #2c3e50;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  text-align: left;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+}
+
+.modal-content label {
+  display: block;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 5px;
+  border: 1px solid #445;
+  background-color: #34495e;
+  color: #fff;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.modal-buttons button {
+  width: auto;
+  padding: 10px 20px;
+}
+
+/* Profile Page Styles */
+.profile-container {
+  width: 100%;
+  max-width: 700px;
+  padding-top: 80px;
+  text-align: left;
+}
+
+.profile-header {
+  background-color: rgba(255, 255, 255, 0.15);
+  padding: 2rem;
+  border-radius: 15px;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.profile-header .profile-pic {
+  width: 120px;
+  height: 120px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  margin: 0 auto 1.5rem auto;
+  border: 3px solid rgba(255, 255, 255, 0.5);
+}
+
+.profile-details {
+  text-align: left;
+  margin-top: 1.5rem;
+  padding-left: 1rem;
+}
+
+.profile-details p {
+  margin: 0.7rem 0;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.profile-details strong {
+  color: #fff;
+  font-weight: 600;
+  display: inline-block;
+  width: 120px;
+}
+
+.profile-details a {
+  display: inline-block;
+  color: #ff8c00;
+  text-decoration: none;
+  font-size: 1rem;
+  margin-top: 1rem;
+  transition: color 0.3s;
+}
+
+.profile-details a:hover {
+  color: #e67e00;
+}
+
+.profile-section {
+  background-color: rgba(255, 255, 255, 0.15);
+  padding: 2rem;
+  border-radius: 15px;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.profile-section h4 {
+  margin-top: 0;
+  font-size: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.profile-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.profile-section ul li {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+.profile-section ul li:last-child {
+  border-bottom: none;
+}

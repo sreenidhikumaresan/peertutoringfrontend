@@ -1,1 +1,1 @@
-# peertutoringfrontend
+# peer-tutoring-frontend

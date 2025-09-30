@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Profile</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body onload="loadProfile()">
+
+  <div class="navbar">
+    <div class="navbar-brand">Peer Tutoring</div>
+    <div class="navbar-links">
+      <a href="menu.html">Home</a>
+      <a href="tutor-list.html">Available Courses</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </div>
+  </div>
+
+  <div class="profile-container">
+
+    <div class="profile-header">
+      <div class="profile-pic"></div>
+      
+      <div class="profile-details">
+        <p><strong>Name:</strong> <span id="profileName">Loading...</span></p>
+        <p><strong>Username:</strong> <span id="profileUsername">Loading...</span></p>
+        <a href="#">Change Password</a>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <h4>Courses I Have Requested (<span id="activeLearningCount">0</span>)</h4>
+      <ul id="learnRequestsList">
+        <li>Loading courses...</li>
+        </ul>
+    </div>
+
+    <div class="profile-section">
+      <h4>Tutor Points</h4>
+      <p style="font-size: 2rem; font-weight: 600;" id="tutorPoints">0</p>
+    </div>
+    
+  </div>
+
+<script src="script.js"></script>
+</body>
+</html>

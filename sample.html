@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peer Tutoring App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: white;
+      min-height: 100vh;
+      display: flex; justify-content: center; align-items: center;
+    }
+    .container {
+      background: rgba(255,255,255,0.1);
+      padding: 2rem;
+      border-radius: 1rem;
+      width: 90%; max-width: 400px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      backdrop-filter: blur(8px);
+      transition: 0.4s;
+    }
+    h2 { margin-bottom: 1rem; text-align: center; font-weight: 600; }
+    input, select, button {
+      width: 100%; padding: 0.7rem;
+      margin: 0.5rem 0;
+      border: none; border-radius: 0.5rem;
+      font-size: 1rem;
+    }
+    input, select {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+    input::placeholder { color: rgba(255,255,255,0.7); }
+    button {
+      background: #ff9f43;
+      color: black; font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { background: #ff6f00; }
+    .hidden { display: none; }
+    .menu button {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      font-weight: 500;
+    }
+    .menu button:hover {
+      background: rgba(255,255,255,0.4);
+    }
+    .profile-pic {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: white;
+      margin: 0 auto 1rem;
+    }
+    .card {
+      background: rgba(255,255,255,0.15);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin: 0.5rem 0;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .card:hover { background: rgba(255,255,255,0.3); }
+  </style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <!-- Login/Signup -->
+  <div id="login-screen">
+    <h2>Sign Up / Login</h2>
+    <input type="text" id="name" placeholder="Enter your name" />
+    <input type="text" id="number" placeholder="Enter your number" />
+    <button onclick="login()">Continue</button>
+  </div>
+
+  <!-- Main Menu -->
+  <div id="menu-screen" class="hidden menu">
+    <h2>What do you want to do?</h2>
+    <button onclick="showTutorList()">Tutor</button>
+    <button onclick="showLearn()">Learn</button>
+    <button onclick="showProfile()">View My Profile</button>
+  </div>
+
+  <!-- Tutor List -->
+  <div id="tutor-list-screen" class="hidden">
+    <h2>Topics Requested by Peers</h2>
+    <div class="card" onclick="showTutorForm()">Math</div>
+    <div class="card" onclick="showTutorForm()">Physics</div>
+    <div class="card" onclick="showTutorForm()">Programming</div>
+    <button onclick="backToMenu()">Back</button>
+  </div>
+
+  <!-- Tutor Form -->
+  <div id="tutor-form-screen" class="hidden">
+    <h2>Be a Tutor</h2>
+    <input type="text" id="tutorName" placeholder="Name" />
+    <input type="text" id="tutorNumber" placeholder="Number" />
+    <input type="text" id="tutorTime" placeholder="Schedule & Timing" />
+    <button onclick="submitTutor()">Submit</button>
+    <button onclick="showTutorList()">Back</button>
+  </div>
+
+  <!-- Learn Form -->
+  <div id="learn-screen" class="hidden">
+    <h2>What do you want to learn?</h2>
+    <input type="text" placeholder="Enter topic" />
+    <input type="file" />
+    <button onclick="backToMenu()">Back</button>
+  </div>
+
+  <!-- Profile -->
+  <div id="profile-screen" class="hidden">
+    <div class="profile-pic"></div>
+    <h3 id="profileName"></h3>
+    <p id="profileNumber"></p>
+    <p><strong>Tutor Points:</strong> 10</p>
+    <p><strong>Active Learning Requests:</strong> 2</p>
+    <button onclick="backToMenu()">Back</button>
+  </div>
+</div>
+
+<script>
+  const loginScreen = document.getElementById('login-screen');
+  const menuScreen = document.getElementById('menu-screen');
+  const tutorListScreen = document.getElementById('tutor-list-screen');
+  const tutorFormScreen = document.getElementById('tutor-form-screen');
+  const learnScreen = document.getElementById('learn-screen');
+  const profileScreen = document.getElementById('profile-screen');
+
+  function login() {
+    const name = document.getElementById('name').value.trim();
+    const number = document.getElementById('number').value.trim();
+    if(name && number) {
+      localStorage.setItem('userName', name);
+      localStorage.setItem('userNumber', number);
+      loginScreen.classList.add('hidden');
+      menuScreen.classList.remove('hidden');
+    } else {
+      alert("Please enter your details");
+    }
+  }
+
+  function backToMenu() {
+    tutorListScreen.classList.add('hidden');
+    tutorFormScreen.classList.add('hidden');
+    learnScreen.classList.add('hidden');
+    profileScreen.classList.add('hidden');
+    menuScreen.classList.remove('hidden');
+  }
+
+  function showTutorList() {
+    menuScreen.classList.add('hidden');
+    tutorListScreen.classList.remove('hidden');
+  }
+
+  function showTutorForm() {
+    tutorListScreen.classList.add('hidden');
+    tutorFormScreen.classList.remove('hidden');
+    document.getElementById('tutorName').value = localStorage.getItem('userName') || '';
+    document.getElementById('tutorNumber').value = localStorage.getItem('userNumber') || '';
+  }
+
+  function submitTutor() {
+    alert("Tutor details submitted!");
+    backToMenu();
+  }
+
+  function showLearn() {
+    menuScreen.classList.add('hidden');
+    learnScreen.classList.remove('hidden');
+  }
+
+  function showProfile() {
+    menuScreen.classList.add('hidden');
+    profileScreen.classList.remove('hidden');
+    document.getElementById('profileName').innerText = localStorage.getItem('userName') || '';
+    document.getElementById('profileNumber').innerText = localStorage.getItem('userNumber') || '';
+  }
+</script>
+
+</body>
+</html>

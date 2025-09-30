@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Requested Topics</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body onload="loadTutorList()">
+
+  <div class="navbar">
+    <div class="navbar-brand">Peer Tutoring</div>
+    <div class="navbar-links">
+      <a href="menu.html">Home</a>
+      <a href="profile.html">Profile</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </div>
+  </div>
+
+  <div class="page-container">
+    <h2>Requested Topics</h2>
+    <div id="tutorListContainer" class="tutor-list">
+      </div>
+    <button onclick="window.location.href='menu.html'" class="back-button" style="width: auto; padding: 10px 30px;">Back</button>
+  </div>
+
+  <div id="requestModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <h3>Request Tutoring</h3>
+      <p>Enter your preferred date and time for the session.</p>
+      <label for="requestDate">Date:</label>
+      <input type="date" id="requestDate" class="modal-input">
+      <label for="requestTime">Time:</label>
+      <input type="time" id="requestTime" class="modal-input">
+      <div class="modal-buttons">
+        <button id="submitRequestBtn" class="modal-button-submit">Submit</button>
+        <button id="closeModalBtn" class="modal-button-close">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+<script src="script.js"></script>
+</body>
+</html>
