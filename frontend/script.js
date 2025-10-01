@@ -8,28 +8,62 @@ const backendUrl = 'https://pse10-backend-api.victoriouscoast-a723bfc3.centralin
 // =================================================================
 
 function login() {
-  const name = document.getElementById('name')?.value?.trim();
+  const username = document.getElementById('name')?.value?.trim(); // 'name' input is for username
   const password = document.getElementById('password')?.value?.trim();
 
-  if (name && password) {
-    localStorage.setItem('userName', name);
-    window.location.href = 'menu.html';
-  } else {
-    alert('Please enter your details');
+  if (!username || !password) {
+    return alert('Please enter your username and password');
   }
+
+  fetch(`${backendUrl}/api/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: username, password: password })
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Invalid username or password.');
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log(data.message);
+    localStorage.setItem('userName', data.user.name);
+    localStorage.setItem('userNumber', data.user.username);
+    window.location.href = 'menu.html';
+  })
+  .catch(error => {
+    alert(error.message);
+  });
 }
 
 function signup() {
   const name = document.getElementById('signupName')?.value?.trim();
-  const number = document.getElementById('signupNumber')?.value?.trim();
+  const username = document.getElementById('signupNumber')?.value?.trim(); // 'number' input is for username
   const password = document.getElementById('signupPassword')?.value?.trim();
 
-  if (name && number && password) {
-    alert('Signup successful! Please log in.');
-    window.location.href = 'index.html';
-  } else {
-    alert('Please fill in all signup details.');
+  if (!name || !username || !password) {
+    return alert('Please fill in all signup details.');
   }
+
+  fetch(`${backendUrl}/api/signup`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: name, username: username, password: password })
+  })
+  .then(response => {
+    if (!response.ok) {
+        return response.json().then(err => { throw new Error(err.message) });
+    }
+    return response.json();
+  })
+  .then(data => {
+    alert(data.message + ' Please log in.');
+    window.location.href = 'index.html';
+  })
+  .catch(error => {
+    alert('Signup failed: ' + error.message);
+  });
 }
 
 // =================================================================
@@ -78,7 +112,6 @@ function submitLearn() {
     window.location.href = 'profile.html';
   })
   .catch(error => {
-    console.error('Error submitting learn request:', error);
     alert('Failed to submit request. Please try again.');
   });
 }
@@ -103,7 +136,6 @@ function submitTutor() {
     window.location.href = 'profile.html';
   })
   .catch(error => {
-    console.error('Error submitting tutor offer:', error);
     alert('Failed to submit offer. Please try again.');
   });
 }
@@ -121,7 +153,7 @@ function loadTutorPoints() {
 
 function loadProfile() {
   const name = localStorage.getItem('userName') || 'Guest';
-  const username = name.toLowerCase().replace(' ', ''); 
+  const username = localStorage.getItem('userNumber') || '';
 
   if (document.getElementById('profileName')) document.getElementById('profileName').innerText = name;
   if (document.getElementById('profileUsername')) document.getElementById('profileUsername').innerText = username;
@@ -146,7 +178,6 @@ function loadProfile() {
         }
       })
       .catch(error => {
-        console.error('Error fetching learning requests:', error);
         learnList.innerHTML = '<li>Could not load learning requests.</li>';
       });
   }
@@ -181,7 +212,6 @@ function loadTutorList() {
       });
     })
     .catch(error => {
-      console.error('Error fetching topic list:', error);
       container.innerHTML = '<p>Could not load topic list. Please try again later.</p>';
     });
 }
@@ -197,7 +227,16 @@ function openRequestModal(topicName) {
 
   requestDateEl.value = '';
   requestTimeEl.value = '';
-  
+  requestDateEl.style.color = 'rgba(255, 255, 255, 0.7)';
+  requestTimeEl.style.color = 'rgba(255, 255, 255, 0.7)';
+
+  requestDateEl.onchange = () => {
+    requestDateEl.style.color = '#fff';
+  };
+  requestTimeEl.onchange = () => {
+    requestTimeEl.style.color = '#fff';
+  };
+
   modal.style.display = 'flex';
 
   const closeModal = () => {
@@ -212,7 +251,7 @@ function openRequestModal(topicName) {
       alert('Please select both a date and a time.');
       return;
     }
-    
+
     closeModal();
     alert(`Offer to tutor for '${topicName}' sent! Waiting for student approval.`);
   };
