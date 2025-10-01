@@ -28,12 +28,13 @@ jobs:
           npm install
           npm run build --if-present
           npm run test --if-present
+        working-directory: ./frontend  # <-- CHANGE 1: Specify the folder
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .
+          path: ./frontend # <-- CHANGE 2: Update the path
 
   deploy:
     runs-on: ubuntu-latest
@@ -62,4 +63,3 @@ jobs:
           app-name: 'pse10-frontend-site'
           slot-name: 'Production'
           package: .
-          
