@@ -264,4 +264,4 @@ function openRequestModal(topicName) {
       closeModal();
     }
   };
-}
+} 
