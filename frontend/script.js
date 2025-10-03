@@ -1,7 +1,7 @@
 // =================================================================
 // CONFIGURATION
 // =================================================================
-const backendUrl = 'pse10-backend-app-aehgg5eaf6hkh5g4.centralindia-01.azurewebsites.net';
+const backendUrl = 'https://pse10-backend-app-aehgg5eaf6hkh5g4.centralindia-01.azurewebsites.net';
 
 // =================================================================
 // LOGIN & SIGNUP FUNCTIONS
