@@ -46,16 +46,17 @@ function login() {
 function signup() {
   const name = document.getElementById('signupName')?.value?.trim();
   const username = document.getElementById('signupUsername')?.value?.trim();
+  const email = document.getElementById('signupEmail')?.value?.trim();
   const password = document.getElementById('signupPassword')?.value?.trim();
 
-  if (!name || !username || !password) {
+  if (!name || !username || !email || !password) {
     return showErrorMessage('Please fill in all signup details.');
   }
 
   fetch(`${backendUrl}/api/signup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: name, username: username, password: password })
+    body: JSON.stringify({ name, username, email, password })
   })
   .then(response => {
     if (!response.ok) {
@@ -64,13 +65,80 @@ function signup() {
     return response.json();
   })
   .then(data => {
-    alert(data.message + ' Please log in.'); // Success can still be an alert
+    alert(data.message + ' Please log in.');
     window.location.href = 'index.html';
   })
   .catch(error => {
     showErrorMessage('Signup failed: ' + error.message);
   });
 }
+
+// =================================================================
+// NEW PASSWORD RESET FUNCTIONS
+// =================================================================
+
+function requestPasswordReset() {
+  const username = document.getElementById('username')?.value?.trim();
+  if (!username) {
+    return showErrorMessage('Please enter your username.');
+  }
+
+  fetch(`${backendUrl}/api/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: username })
+  })
+  .then(response => response.json())
+  .then(data => {
+    alert(data.message + " For testing, check the backend's Log stream for the reset link.");
+    window.location.href = 'index.html';
+  })
+  .catch(error => {
+    showErrorMessage('An error occurred. Please try again.');
+  });
+}
+
+function verifyResetToken() {
+  const token = getQueryParam('token');
+  if (!token) {
+    showErrorMessage('No reset token provided. Please request a new link.');
+    // Disable the form if no token is found
+    document.querySelector('button').disabled = true;
+  }
+}
+
+function submitNewPassword() {
+  const token = getQueryParam('token');
+  const newPassword = document.getElementById('newPassword')?.value?.trim();
+  const confirmPassword = document.getElementById('confirmPassword')?.value?.trim();
+
+  if (!newPassword || !confirmPassword) {
+    return showErrorMessage('Please enter and confirm your new password.');
+  }
+  if (newPassword !== confirmPassword) {
+    return showErrorMessage('Passwords do not match.');
+  }
+
+  fetch(`${backendUrl}/api/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: token, password: newPassword })
+  })
+  .then(response => {
+    if (!response.ok) {
+        return response.json().then(err => { throw new Error(err.message) });
+    }
+    return response.json();
+  })
+  .then(data => {
+    alert(data.message);
+    window.location.href = 'index.html';
+  })
+  .catch(error => {
+    showErrorMessage('Error resetting password: ' + error.message);
+  });
+}
+
 
 // =================================================================
 // OTHER HELPER FUNCTIONS
