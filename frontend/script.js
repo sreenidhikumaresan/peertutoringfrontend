@@ -1,7 +1,7 @@
 // =================================================================
 // CONFIGURATION
 // =================================================================
-const backendUrl = 'https://pse10-backend-app.azurewebsites.net'; // Corrected to your App Service URL
+const backendUrl = 'https://pse10-backend-app-aehgg5eaf6hkh5g4.centralindia-01.azurewebsites.net';
 
 // =================================================================
 // LOGIN & SIGNUP FUNCTIONS
@@ -36,7 +36,7 @@ function login() {
 
 function signup() {
   const name = document.getElementById('signupName')?.value?.trim();
-  const username = document.getElementById('signupUsername')?.value?.trim(); // Corrected ID
+  const username = document.getElementById('signupUsername')?.value?.trim();
   const password = document.getElementById('signupPassword')?.value?.trim();
 
   if (!name || !username || !password) {
@@ -62,8 +62,6 @@ function signup() {
     alert('Signup failed: ' + error.message);
   });
 }
-
-// ... (The rest of your script.js file remains the same) ...
 
 // =================================================================
 // OTHER HELPER FUNCTIONS
