@@ -1,14 +1,14 @@
 // =================================================================
 // CONFIGURATION
 // =================================================================
-const backendUrl = 'https://pse10-backend-api.victoriouscoast-a723bfc3.centralindia.azurecontainerapps.io';
+const backendUrl = 'https://pse10-backend-app.azurewebsites.net'; // Corrected to your App Service URL
 
 // =================================================================
 // LOGIN & SIGNUP FUNCTIONS
 // =================================================================
 
 function login() {
-  const username = document.getElementById('name')?.value?.trim(); // 'name' input is for username
+  const username = document.getElementById('name')?.value?.trim();
   const password = document.getElementById('password')?.value?.trim();
 
   if (!username || !password) {
@@ -21,13 +21,10 @@ function login() {
     body: JSON.stringify({ username: username, password: password })
   })
   .then(response => {
-    if (!response.ok) {
-      throw new Error('Invalid username or password.');
-    }
+    if (!response.ok) { throw new Error('Invalid username or password.'); }
     return response.json();
   })
   .then(data => {
-    console.log(data.message);
     localStorage.setItem('userName', data.user.name);
     localStorage.setItem('userNumber', data.user.username);
     window.location.href = 'menu.html';
@@ -39,7 +36,7 @@ function login() {
 
 function signup() {
   const name = document.getElementById('signupName')?.value?.trim();
-  const username = document.getElementById('signupNumber')?.value?.trim(); // 'number' input is for username
+  const username = document.getElementById('signupUsername')?.value?.trim(); // Corrected ID
   const password = document.getElementById('signupPassword')?.value?.trim();
 
   if (!name || !username || !password) {
@@ -65,6 +62,8 @@ function signup() {
     alert('Signup failed: ' + error.message);
   });
 }
+
+// ... (The rest of your script.js file remains the same) ...
 
 // =================================================================
 // OTHER HELPER FUNCTIONS
@@ -264,4 +263,4 @@ function openRequestModal(topicName) {
       closeModal();
     }
   };
-} 
+}
