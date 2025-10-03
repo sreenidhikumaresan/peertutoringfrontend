@@ -74,19 +74,19 @@ function signup() {
 }
 
 // =================================================================
-// NEW PASSWORD RESET FUNCTIONS
+// PASSWORD RESET FUNCTIONS
 // =================================================================
 
 function requestPasswordReset() {
-  const username = document.getElementById('username')?.value?.trim();
-  if (!username) {
-    return showErrorMessage('Please enter your username.');
+  const email = document.getElementById('email')?.value?.trim();
+  if (!email) {
+    return showErrorMessage('Please enter your registered email.');
   }
 
   fetch(`${backendUrl}/api/forgot-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: username })
+    body: JSON.stringify({ email: email })
   })
   .then(response => response.json())
   .then(data => {
@@ -102,7 +102,6 @@ function verifyResetToken() {
   const token = getQueryParam('token');
   if (!token) {
     showErrorMessage('No reset token provided. Please request a new link.');
-    // Disable the form if no token is found
     document.querySelector('button').disabled = true;
   }
 }
