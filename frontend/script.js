@@ -1,18 +1,27 @@
 // =================================================================
 // CONFIGURATION
 // =================================================================
-const backendUrl = 'https://pse10-backend-app-aehgg5eaf6hkh5g4.centralindia-01.azurewebsites.net';
+const backendUrl = 'https://pse10-backend-app.azurewebsites.net';
 
 // =================================================================
 // LOGIN & SIGNUP FUNCTIONS
 // =================================================================
+
+// Helper function to show errors on the page
+function showErrorMessage(message) {
+  const errorMessageEl = document.getElementById('errorMessage');
+  if (errorMessageEl) {
+    errorMessageEl.innerText = message;
+    errorMessageEl.style.display = 'block';
+  }
+}
 
 function login() {
   const username = document.getElementById('name')?.value?.trim();
   const password = document.getElementById('password')?.value?.trim();
 
   if (!username || !password) {
-    return alert('Please enter your username and password');
+    return showErrorMessage('Please enter your username and password.');
   }
 
   fetch(`${backendUrl}/api/login`, {
@@ -30,7 +39,7 @@ function login() {
     window.location.href = 'menu.html';
   })
   .catch(error => {
-    alert(error.message);
+    showErrorMessage(error.message);
   });
 }
 
@@ -40,7 +49,7 @@ function signup() {
   const password = document.getElementById('signupPassword')?.value?.trim();
 
   if (!name || !username || !password) {
-    return alert('Please fill in all signup details.');
+    return showErrorMessage('Please fill in all signup details.');
   }
 
   fetch(`${backendUrl}/api/signup`, {
@@ -55,11 +64,11 @@ function signup() {
     return response.json();
   })
   .then(data => {
-    alert(data.message + ' Please log in.');
+    alert(data.message + ' Please log in.'); // Success can still be an alert
     window.location.href = 'index.html';
   })
   .catch(error => {
-    alert('Signup failed: ' + error.message);
+    showErrorMessage('Signup failed: ' + error.message);
   });
 }
 
@@ -224,16 +233,7 @@ function openRequestModal(topicName) {
 
   requestDateEl.value = '';
   requestTimeEl.value = '';
-  requestDateEl.style.color = 'rgba(255, 255, 255, 0.7)';
-  requestTimeEl.style.color = 'rgba(255, 255, 255, 0.7)';
-
-  requestDateEl.onchange = () => {
-    requestDateEl.style.color = '#fff';
-  };
-  requestTimeEl.onchange = () => {
-    requestTimeEl.style.color = '#fff';
-  };
-
+  
   modal.style.display = 'flex';
 
   const closeModal = () => {
@@ -248,7 +248,7 @@ function openRequestModal(topicName) {
       alert('Please select both a date and a time.');
       return;
     }
-
+    
     closeModal();
     alert(`Offer to tutor for '${topicName}' sent! Waiting for student approval.`);
   };
