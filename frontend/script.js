@@ -1,7 +1,7 @@
 // =================================================================
 // CONFIGURATION
 // =================================================================
-const backendUrl = 'https://pse10-backend-app-aehgg5eaf6hkh5g4.centralindia-01.azurewebsites.net';
+const backendUrl = 'https://pse10-backend-app.azurewebsites.net';
 
 // =================================================================
 // LOGIN & SIGNUP FUNCTIONS
@@ -27,7 +27,7 @@ function login() {
   fetch(`${backendUrl}/api/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: username, password: password })
+    body: JSON.stringify({ username, password })
   })
   .then(response => {
     if (!response.ok) { throw new Error('Invalid username or password.'); }
