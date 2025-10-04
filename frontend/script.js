@@ -1,7 +1,7 @@
 // =================================================================
 // CONFIGURATION
 // =================================================================
-const backendUrl = 'https://pse10-backend-app.azurewebsites.net';
+const backendUrl = 'https://pse10-backend-app-aehgg5eaf6hkh5g4.centralindia-01.azurewebsites.net';
 // Note: The WebPubSubClient library must be imported in your HTML file.
 // Add this line to the <head> of any page that needs real-time updates:
 // <script src="https://cdn.jsdelivr.net/npm/@azure/web-pubsub-client/dist/index.browser.js"></script>
