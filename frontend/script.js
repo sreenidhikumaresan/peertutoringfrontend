@@ -1,7 +1,10 @@
 // =================================================================
 // CONFIGURATION
 // =================================================================
-const backendUrl = 'https://pse10-backend-app-aehgg5eaf6hkh5g4.centralindia-01.azurewebsites.net';
+const backendUrl = 'https://pse10-backend-app.azurewebsites.net';
+// Note: The WebPubSubClient library must be imported in your HTML file.
+// Add this line to the <head> of any page that needs real-time updates:
+// <script src="https://cdn.jsdelivr.net/npm/@azure/web-pubsub-client/dist/index.browser.js"></script>
 
 // =================================================================
 // LOGIN & SIGNUP FUNCTIONS
@@ -73,12 +76,15 @@ function signup() {
 }
 
 // =================================================================
-// REAL-TIME NOTIFICATION FUNCTIONS
+// REAL-TIME NOTIFICATION FUNCTIONS (NEW)
 // =================================================================
 
 async function connectToWebPubSub() {
   const username = localStorage.getItem('userNumber');
-  if (!username) return; // Don't connect if user is not logged in
+  if (!username || typeof WebPubSubClient === 'undefined') {
+    console.log("Not connecting to WebPubSub: user not logged in or library not found.");
+    return;
+  }
 
   try {
     const response = await fetch(`${backendUrl}/negotiate?username=${username}`);
@@ -105,7 +111,14 @@ async function connectToWebPubSub() {
 }
 
 function showProposalPopup(proposalData) {
+  // Remove any existing popups first
+  const existingOverlay = document.getElementById('proposalOverlay');
+  if (existingOverlay) {
+    document.body.removeChild(existingOverlay);
+  }
+
   const overlay = document.createElement('div');
+  overlay.id = 'proposalOverlay';
   overlay.className = 'modal-overlay';
   
   const popup = document.createElement('div');
@@ -148,7 +161,6 @@ function showProposalPopup(proposalData) {
     document.body.removeChild(overlay);
   };
 }
-
 
 // =================================================================
 // PASSWORD RESET FUNCTIONS
@@ -245,12 +257,13 @@ function autoFillTutorForm() {
 function submitLearn() {
   const topic = document.getElementById('learnTopic')?.value?.trim();
   const filename = document.getElementById('learnFile')?.files[0]?.name || '';
+  const username = localStorage.getItem('userNumber');
 
   if (!topic || !filename) {
     alert('Please enter a topic and choose a file.');
     return;
   }
-  const learnRequestData = { topic: topic, fileName: filename };
+  const learnRequestData = { topic: topic, fileName: filename, requestedByUsername: username };
   fetch(`${backendUrl}/api/learn`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -356,7 +369,7 @@ function loadTutorList() {
             <h4>${req.topic}</h4>
             <p>File: ${req.fileName}</p>
           </div>
-          <button onclick="openRequestModal('${req.topic}')">Tutor</button>
+          <button onclick="openRequestModal('${req.topic}', '${req.requestedByUsername}')">Tutor</button>
         `;
         container.appendChild(card);
       });
@@ -366,7 +379,7 @@ function loadTutorList() {
     });
 }
 
-function openRequestModal(topicName) {
+function openRequestModal(topicName, recipientUsername) {
   const modal = document.getElementById('requestModal');
   const closeModalBtn = document.getElementById('closeModalBtn');
   const submitRequestBtn = document.getElementById('submitRequestBtn');
@@ -393,8 +406,6 @@ function openRequestModal(topicName) {
       return;
     }
     
-    // In a real implementation, you would get the other user's username
-    const recipientUsername = "user-to-notify"; // This needs to be dynamic
     const proposerUsername = localStorage.getItem('userNumber');
 
     const proposalData = {
@@ -405,7 +416,6 @@ function openRequestModal(topicName) {
       proposedTime: time
     };
 
-    // Send the proposal to the backend
     fetch(`${backendUrl}/api/proposals`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -425,3 +435,9 @@ function openRequestModal(topicName) {
     }
   };
 }
+
+// Automatically connect to the notification service on pages that need it
+// This ensures that if a user is logged in, they are always listening for messages.
+document.addEventListener('DOMContentLoaded', function() {
+    connectToWebPubSub();
+});
