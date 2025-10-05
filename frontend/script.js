@@ -1,8 +1,8 @@
 // =================================================================
 // CONFIGURATION
 // =================================================================
-const backendUrl = 'https://pse10-backend-app-aehgg5eaf6hkh5g4.centralindia-01.azurewebsites.net';
-// Note: The WebPubSubClient library must be imported in your HTML file.
+const backendUrl = 'https://pse10-backend-app.azurewebsites.net';
+// Note: The WebPubSubClient library must be imported in your HTML files.
 
 // =================================================================
 // LOGIN & SIGNUP FUNCTIONS
