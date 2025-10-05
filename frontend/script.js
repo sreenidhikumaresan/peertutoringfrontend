@@ -1,10 +1,8 @@
 // =================================================================
 // CONFIGURATION
 // =================================================================
-const backendUrl = 'https://pse10-backend-app-aehgg5eaf6hkh5g4.centralindia-01.azurewebsites.net';
+const backendUrl = 'https://pse10-backend-app.azurewebsites.net';
 // Note: The WebPubSubClient library must be imported in your HTML file.
-// Add this line to the <head> of any page that needs real-time updates:
-// <script src="https://cdn.jsdelivr.net/npm/@azure/web-pubsub-client/dist/index.browser.js"></script>
 
 // =================================================================
 // LOGIN & SIGNUP FUNCTIONS
@@ -37,7 +35,7 @@ function login() {
   })
   .then(data => {
     localStorage.setItem('userName', data.user.name);
-    localStorage.setItem('userNumber', data.user.username); // 'userNumber' stores the username
+    localStorage.setItem('userNumber', data.user.username);
     window.location.href = 'menu.html';
   })
   .catch(error => {
@@ -76,7 +74,7 @@ function signup() {
 }
 
 // =================================================================
-// REAL-TIME NOTIFICATION FUNCTIONS (NEW)
+// REAL-TIME NOTIFICATION FUNCTIONS
 // =================================================================
 
 async function connectToWebPubSub() {
@@ -111,14 +109,7 @@ async function connectToWebPubSub() {
 }
 
 function showProposalPopup(proposalData) {
-  // Remove any existing popups first
-  const existingOverlay = document.getElementById('proposalOverlay');
-  if (existingOverlay) {
-    document.body.removeChild(existingOverlay);
-  }
-
   const overlay = document.createElement('div');
-  overlay.id = 'proposalOverlay';
   overlay.className = 'modal-overlay';
   
   const popup = document.createElement('div');
@@ -161,6 +152,7 @@ function showProposalPopup(proposalData) {
     document.body.removeChild(overlay);
   };
 }
+
 
 // =================================================================
 // PASSWORD RESET FUNCTIONS
@@ -324,8 +316,8 @@ function loadProfile() {
   const learnList = document.getElementById('learnRequestsList');
   const activeLearningCount = document.getElementById('activeLearningCount');
 
-  if (learnList) {
-    fetch(`${backendUrl}/api/learn`)
+  if (learnList && username) {
+    fetch(`${backendUrl}/api/learn?username=${username}`)
       .then(response => response.json())
       .then(requests => {
         if (activeLearningCount) activeLearningCount.innerText = requests.length;
@@ -437,7 +429,6 @@ function openRequestModal(topicName, recipientUsername) {
 }
 
 // Automatically connect to the notification service on pages that need it
-// This ensures that if a user is logged in, they are always listening for messages.
 document.addEventListener('DOMContentLoaded', function() {
     connectToWebPubSub();
 });
