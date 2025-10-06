@@ -36,7 +36,14 @@ function login() {
   .then(data => {
     localStorage.setItem('userName', data.user.name);
     localStorage.setItem('userNumber', data.user.username);
-    window.location.href = 'menu.html';
+    
+    // --- NEW LOGIC: Connect to Web PubSub on successful login ---
+    connectToWebPubSub(); 
+
+    // Redirect after a short delay to allow connection to start
+    setTimeout(() => {
+        window.location.href = 'menu.html';
+    }, 500);
   })
   .catch(error => {
     showErrorMessage(error.message);
@@ -80,8 +87,13 @@ function signup() {
 async function connectToWebPubSub() {
   const username = localStorage.getItem('userNumber');
   if (!username || typeof WebPubSubClient === 'undefined') {
-    console.log("Not connecting to WebPubSub: user not logged in or library not found.");
     return;
+  }
+  
+  // Prevent reconnecting if already connected in this session
+  if (sessionStorage.getItem('webPubSubConnected')) {
+      console.log("Already connected to real-time service in this session.");
+      return;
   }
 
   try {
@@ -91,17 +103,16 @@ async function connectToWebPubSub() {
 
     client.on("server-message", (e) => {
       const notification = e.message.data;
-      console.log("Received notification:", notification);
-      
       if (notification.type === 'newProposal') {
         showProposalPopup(notification.data);
       } else if (notification.type === 'proposalResponse') {
-        alert(`Your proposal for the topic "${notification.data.topic}" was ${notification.data.status} by ${notification.data.recipient}.`);
+        alert(`Your proposal for "${notification.data.topic}" was ${notification.data.status}.`);
       }
     });
 
     await client.start();
     console.log("Connected to real-time notification service.");
+    sessionStorage.setItem('webPubSubConnected', 'true'); // Mark as connected for this session
 
   } catch (err) {
     console.error("Failed to connect to real-time service:", err);
