@@ -1,8 +1,7 @@
 // =================================================================
 // CONFIGURATION
 // =================================================================
-const backendUrl = 'https://pse10-backend-app-aehgg5eaf6hkh5g4.centralindia-01.azurewebsites.net';
-// Note: The WebPubSubClient library must be imported in your HTML files.
+const backendUrl = 'https://pse10-backend-app.azurewebsites.net';
 
 // =================================================================
 // LOGIN & SIGNUP FUNCTIONS
@@ -36,14 +35,7 @@ function login() {
   .then(data => {
     localStorage.setItem('userName', data.user.name);
     localStorage.setItem('userNumber', data.user.username);
-    
-    // --- NEW LOGIC: Connect to Web PubSub on successful login ---
-    connectToWebPubSub(); 
-
-    // Redirect after a short delay to allow connection to start
-    setTimeout(() => {
-        window.location.href = 'menu.html';
-    }, 500);
+    window.location.href = 'menu.html';
   })
   .catch(error => {
     showErrorMessage(error.message);
@@ -80,47 +72,36 @@ function signup() {
   });
 }
 
+
 // =================================================================
-// REAL-TIME NOTIFICATION FUNCTIONS
+// NOTIFICATION POLLING FUNCTIONS (NEW)
 // =================================================================
 
-async function connectToWebPubSub() {
+function startNotificationPolling() {
   const username = localStorage.getItem('userNumber');
-  if (!username || typeof WebPubSubClient === 'undefined') {
-    return;
-  }
-  
-  // Prevent reconnecting if already connected in this session
-  if (sessionStorage.getItem('webPubSubConnected')) {
-      console.log("Already connected to real-time service in this session.");
-      return;
-  }
+  if (!username) return;
 
-  try {
-    const response = await fetch(`${backendUrl}/negotiate?username=${username}`);
-    const data = await response.json();
-    const client = new WebPubSubClient(data.url);
+  // Check for notifications every 5 seconds
+  setInterval(async () => {
+    // Only check for notifications if there isn't already a popup showing
+    if (document.getElementById('proposalOverlay')) return;
 
-    client.on("server-message", (e) => {
-      const notification = e.message.data;
-      if (notification.type === 'newProposal') {
+    try {
+      const response = await fetch(`${backendUrl}/api/notifications/${username}`);
+      const notification = await response.json();
+
+      if (notification && notification.type === 'newProposal') {
         showProposalPopup(notification.data);
-      } else if (notification.type === 'proposalResponse') {
-        alert(`Your proposal for "${notification.data.topic}" was ${notification.data.status}.`);
       }
-    });
-
-    await client.start();
-    console.log("Connected to real-time notification service.");
-    sessionStorage.setItem('webPubSubConnected', 'true'); // Mark as connected for this session
-
-  } catch (err) {
-    console.error("Failed to connect to real-time service:", err);
-  }
+    } catch (err) {
+      console.error("Polling for notifications failed:", err);
+    }
+  }, 5000);
 }
 
 function showProposalPopup(proposalData) {
   const overlay = document.createElement('div');
+  overlay.id = 'proposalOverlay'; // Give it an ID to check if it exists
   overlay.className = 'modal-overlay';
   
   const popup = document.createElement('div');
@@ -439,7 +420,7 @@ function openRequestModal(topicName, recipientUsername) {
   };
 }
 
-// Automatically connect to the notification service on pages that need it
+// --- AUTO-START POLLING ON PAGE LOAD ---
 document.addEventListener('DOMContentLoaded', function() {
-    connectToWebPubSub();
+    startNotificationPolling();
 });
