@@ -1,7 +1,7 @@
 // =================================================================
 // CONFIGURATION
 // =================================================================
-const backendUrl = 'https://pse10-backend-app.azurewebsites.net';
+const backendUrl = 'https://pse10-backend-app-aehgg5eaf6hkh5g4.centralindia-01.azurewebsites.net';
 
 // =================================================================
 // LOGIN & SIGNUP FUNCTIONS
@@ -83,30 +83,19 @@ function startNotificationPolling() {
 
   // Check for notifications every 5 seconds
   setInterval(async () => {
-    // 1. Check for NEW proposals SENT TO ME
-    if (!document.getElementById('proposalOverlay')) { // Don't poll if a popup is already showing
-      try {
-        const response = await fetch(`${backendUrl}/api/notifications/${username}`);
-        const notification = await response.json();
-        if (notification && notification.type === 'newProposal') {
-          showProposalPopup(notification.data);
-        }
-      } catch (err) {
-        console.error("Polling for new proposals failed:", err);
-      }
-    }
+    // Only check for notifications if there isn't already a popup showing
+    if (document.getElementById('proposalOverlay')) return;
 
-    // 2. Check for RESPONSES to proposals I HAVE MADE
     try {
-        const response = await fetch(`${backendUrl}/api/proposal-status/${username}`);
-        const notification = await response.json();
-        if (notification && notification.type === 'proposalResponse') {
-            alert(`Your offer for the topic "${notification.data.topic}" was ${notification.data.status} by student ${notification.data.recipient}.`);
-        }
-    } catch (err) {
-        console.error("Polling for proposal status failed:", err);
-    }
+      const response = await fetch(`${backendUrl}/api/notifications/${username}`);
+      const notification = await response.json();
 
+      if (notification && notification.type === 'newProposal') {
+        showProposalPopup(notification.data);
+      }
+    } catch (err) {
+      console.error("Polling for notifications failed:", err);
+    }
   }, 5000);
 }
 
