@@ -77,27 +77,39 @@ function signup() {
 // NOTIFICATION POLLING FUNCTIONS (NEW)
 // =================================================================
 
-function startNotificationPolling() {
+ffunction startNotificationPolling() {
   const username = localStorage.getItem('userNumber');
   if (!username) return;
 
   // Check for notifications every 5 seconds
   setInterval(async () => {
-    // Only check for notifications if there isn't already a popup showing
-    if (document.getElementById('proposalOverlay')) return;
-
-    try {
-      const response = await fetch(`${backendUrl}/api/notifications/${username}`);
-      const notification = await response.json();
-
-      if (notification && notification.type === 'newProposal') {
-        showProposalPopup(notification.data);
+    // 1. Check for NEW proposals SENT TO ME
+    if (!document.getElementById('proposalOverlay')) { // Don't poll if a popup is already showing
+      try {
+        const response = await fetch(`${backendUrl}/api/notifications/${username}`);
+        const notification = await response.json();
+        if (notification && notification.type === 'newProposal') {
+          showProposalPopup(notification.data);
+        }
+      } catch (err) {
+        console.error("Polling for new proposals failed:", err);
       }
-    } catch (err) {
-      console.error("Polling for notifications failed:", err);
     }
+
+    // 2. Check for RESPONSES to proposals I HAVE MADE
+    try {
+        const response = await fetch(`${backendUrl}/api/proposal-status/${username}`);
+        const notification = await response.json();
+        if (notification && notification.type === 'proposalResponse') {
+            alert(`Your offer for the topic "${notification.data.topic}" was ${notification.data.status} by student ${notification.data.recipient}.`);
+        }
+    } catch (err) {
+        console.error("Polling for proposal status failed:", err);
+    }
+
   }, 5000);
 }
+
 
 function showProposalPopup(proposalData) {
   const overlay = document.createElement('div');
