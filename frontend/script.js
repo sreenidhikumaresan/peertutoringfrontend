@@ -1,7 +1,7 @@
 // =================================================================
 // CONFIGURATION
 // =================================================================
-const backendUrl = 'https://pse10-backend-app-aehgg5eaf6hkh5g4.centralindia-01.azurewebsites.net';
+const backendUrl = 'https://pse10-backend-app.azurewebsites.net';
 
 // =================================================================
 // LOGIN & SIGNUP FUNCTIONS
@@ -77,7 +77,7 @@ function signup() {
 // NOTIFICATION POLLING FUNCTIONS (NEW)
 // =================================================================
 
-ffunction startNotificationPolling() {
+function startNotificationPolling() {
   const username = localStorage.getItem('userNumber');
   if (!username) return;
 
@@ -109,7 +109,6 @@ ffunction startNotificationPolling() {
 
   }, 5000);
 }
-
 
 function showProposalPopup(proposalData) {
   const overlay = document.createElement('div');
