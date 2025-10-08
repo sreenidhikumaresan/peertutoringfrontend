@@ -74,16 +74,14 @@ function signup() {
 
 
 // =================================================================
-// NOTIFICATION POLLING FUNCTIONS (NEW)
+// NOTIFICATION POLLING FUNCTIONS (USED INSTEAD OF WEB PUBSUB)
 // =================================================================
 
 function startNotificationPolling() {
   const username = localStorage.getItem('userNumber');
   if (!username) return;
 
-  // Check for notifications every 5 seconds
   setInterval(async () => {
-    // Only check for notifications if there isn't already a popup showing
     if (document.getElementById('proposalOverlay')) return;
 
     try {
@@ -101,7 +99,7 @@ function startNotificationPolling() {
 
 function showProposalPopup(proposalData) {
   const overlay = document.createElement('div');
-  overlay.id = 'proposalOverlay'; // Give it an ID to check if it exists
+  overlay.id = 'proposalOverlay';
   overlay.className = 'modal-overlay';
   
   const popup = document.createElement('div');
@@ -166,7 +164,7 @@ function requestPasswordReset() {
     alert(data.message + " For testing, check the backend's Log stream for the reset link.");
     window.location.href = 'index.html';
   })
-  .catch(error => {
+  .catch(() => {
     showErrorMessage('An error occurred. Please try again.');
   });
 }
@@ -234,6 +232,7 @@ function autoFillTutorForm() {
   if (document.getElementById('tutorNumber')) document.getElementById('tutorNumber').value = number;
 }
 
+
 // =================================================================
 // SUBMIT FUNCTIONS (API Calls)
 // =================================================================
@@ -254,11 +253,11 @@ function submitLearn() {
     body: JSON.stringify(learnRequestData)
   })
   .then(response => response.json())
-  .then(data => {
+  .then(() => {
     alert('Learning request submitted!');
     window.location.href = 'profile.html';
   })
-  .catch(error => {
+  .catch(() => {
     alert('Failed to submit request. Please try again.');
   });
 }
@@ -278,14 +277,15 @@ function submitTutor() {
     body: JSON.stringify(tutorOfferData)
   })
   .then(response => response.json())
-  .then(data => {
+  .then(() => {
     alert('Tutor details submitted!');
     window.location.href = 'profile.html';
   })
-  .catch(error => {
+  .catch(() => {
     alert('Failed to submit offer. Please try again.');
   });
 }
+
 
 // =================================================================
 // LOAD DATA & MODAL FUNCTIONS
@@ -324,7 +324,7 @@ function loadProfile() {
             });
         }
       })
-      .catch(error => {
+      .catch(() => {
         learnList.innerHTML = '<li>Could not load learning requests.</li>';
       });
   }
@@ -358,7 +358,7 @@ function loadTutorList() {
         container.appendChild(card);
       });
     })
-    .catch(error => {
+    .catch(() => {
       container.innerHTML = '<p>Could not load topic list. Please try again later.</p>';
     });
 }
@@ -420,7 +420,9 @@ function openRequestModal(topicName, recipientUsername) {
   };
 }
 
-// --- AUTO-START POLLING ON PAGE LOAD ---
+// =================================================================
+// AUTO START POLLING ON PAGE LOAD
+// =================================================================
 document.addEventListener('DOMContentLoaded', function() {
     startNotificationPolling();
 });
