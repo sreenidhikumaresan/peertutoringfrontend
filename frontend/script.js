@@ -1,7 +1,8 @@
 // =================================================================
 // CONFIGURATION
 // =================================================================
-const backendUrl = 'https://pse10-backend-app-aehgg5eaf6hkh5g4.centralindia-01.azurewebsites.net';
+const backendUrl = 'https://pse10-backend-app.azurewebsites.net';
+// Note: The WebPubSubClient library must be imported in your HTML files.
 
 // =================================================================
 // LOGIN & SIGNUP FUNCTIONS
@@ -72,34 +73,43 @@ function signup() {
   });
 }
 
-
 // =================================================================
-// NOTIFICATION POLLING (For Students)
+// REAL-TIME NOTIFICATION FUNCTIONS
 // =================================================================
 
-function startNotificationPolling() {
+async function connectToWebPubSub() {
   const username = localStorage.getItem('userNumber');
-  if (!username) return;
+  if (!username || typeof WebPubSubClient === 'undefined') {
+    console.log("Not connecting to WebPubSub: user not logged in or library not found.");
+    return;
+  }
 
-  setInterval(async () => {
-    if (document.getElementById('proposalOverlay')) return;
+  try {
+    const response = await fetch(`${backendUrl}/negotiate?username=${username}`);
+    const data = await response.json();
+    const client = new WebPubSubClient(data.url);
 
-    try {
-      const response = await fetch(`${backendUrl}/api/notifications/${username}`);
-      const notification = await response.json();
-
-      if (notification && notification.type === 'newProposal') {
+    client.on("server-message", (e) => {
+      const notification = e.message.data;
+      console.log("Received notification:", notification);
+      
+      if (notification.type === 'newProposal') {
         showProposalPopup(notification.data);
+      } else if (notification.type === 'proposalResponse') {
+        alert(`Your proposal for the topic "${notification.data.topic}" was ${notification.data.status} by ${notification.data.recipient}.`);
       }
-    } catch (err) {
-      console.error("Polling for notifications failed:", err);
-    }
-  }, 5000);
+    });
+
+    await client.start();
+    console.log("Connected to real-time notification service.");
+
+  } catch (err) {
+    console.error("Failed to connect to real-time service:", err);
+  }
 }
 
 function showProposalPopup(proposalData) {
   const overlay = document.createElement('div');
-  overlay.id = 'proposalOverlay';
   overlay.className = 'modal-overlay';
   
   const popup = document.createElement('div');
@@ -124,8 +134,8 @@ function showProposalPopup(proposalData) {
   overlay.appendChild(popup);
   document.body.appendChild(overlay);
 
-  document.getElementById('acceptBtn').onclick = async () => {
-    await fetch(`${backendUrl}/api/proposals/${proposalData.id}/respond`, {
+  document.getElementById('acceptBtn').onclick = () => {
+    fetch(`${backendUrl}/api/proposals/${proposalData.id}/respond`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ response: 'accepted' })
@@ -133,37 +143,14 @@ function showProposalPopup(proposalData) {
     document.body.removeChild(overlay);
   };
 
-  document.getElementById('rejectBtn').onclick = async () => {
-    await fetch(`${backendUrl}/api/proposals/${proposalData.id}/respond`, {
+  document.getElementById('rejectBtn').onclick = () => {
+    fetch(`${backendUrl}/api/proposals/${proposalData.id}/respond`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ response: 'rejected' })
     });
     document.body.removeChild(overlay);
   };
-}
-
-
-// =================================================================
-// RESPONSE POLLING (For Tutors)
-// =================================================================
-
-function startResponsePolling() {
-  const username = localStorage.getItem('userNumber');
-  if (!username) return;
-
-  setInterval(async () => {
-    try {
-      const response = await fetch(`${backendUrl}/api/updates/${username}`);
-      const data = await response.json();
-
-      if (data && data.type === 'proposalResponse') {
-        alert(`Student ${data.data.studentName} has ${data.data.status} your tutor offer on '${data.data.topic}'.`);
-      }
-    } catch (err) {
-      console.error("Polling for tutor responses failed:", err);
-    }
-  }, 5000);
 }
 
 
@@ -187,7 +174,7 @@ function requestPasswordReset() {
     alert(data.message + " For testing, check the backend's Log stream for the reset link.");
     window.location.href = 'index.html';
   })
-  .catch(() => {
+  .catch(error => {
     showErrorMessage('An error occurred. Please try again.');
   });
 }
@@ -255,9 +242,8 @@ function autoFillTutorForm() {
   if (document.getElementById('tutorNumber')) document.getElementById('tutorNumber').value = number;
 }
 
-
 // =================================================================
-// SUBMIT FUNCTIONS
+// SUBMIT FUNCTIONS (API Calls)
 // =================================================================
 
 function submitLearn() {
@@ -276,11 +262,11 @@ function submitLearn() {
     body: JSON.stringify(learnRequestData)
   })
   .then(response => response.json())
-  .then(() => {
+  .then(data => {
     alert('Learning request submitted!');
     window.location.href = 'profile.html';
   })
-  .catch(() => {
+  .catch(error => {
     alert('Failed to submit request. Please try again.');
   });
 }
@@ -300,15 +286,14 @@ function submitTutor() {
     body: JSON.stringify(tutorOfferData)
   })
   .then(response => response.json())
-  .then(() => {
+  .then(data => {
     alert('Tutor details submitted!');
     window.location.href = 'profile.html';
   })
-  .catch(() => {
+  .catch(error => {
     alert('Failed to submit offer. Please try again.');
   });
 }
-
 
 // =================================================================
 // LOAD DATA & MODAL FUNCTIONS
@@ -347,7 +332,7 @@ function loadProfile() {
             });
         }
       })
-      .catch(() => {
+      .catch(error => {
         learnList.innerHTML = '<li>Could not load learning requests.</li>';
       });
   }
@@ -381,7 +366,7 @@ function loadTutorList() {
         container.appendChild(card);
       });
     })
-    .catch(() => {
+    .catch(error => {
       container.innerHTML = '<p>Could not load topic list. Please try again later.</p>';
     });
 }
@@ -443,10 +428,7 @@ function openRequestModal(topicName, recipientUsername) {
   };
 }
 
-// =================================================================
-// AUTO START POLLING ON PAGE LOAD
-// =================================================================
+// Automatically connect to the notification service on pages that need it
 document.addEventListener('DOMContentLoaded', function() {
-  startNotificationPolling();
-  startResponsePolling(); // 🔔 tutor gets alert when student accepts/rejects
+    connectToWebPubSub();
 });
