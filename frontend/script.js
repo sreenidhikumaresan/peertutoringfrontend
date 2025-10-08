@@ -74,7 +74,7 @@ function signup() {
 
 
 // =================================================================
-// NOTIFICATION POLLING FUNCTIONS (USED INSTEAD OF WEB PUBSUB)
+// NOTIFICATION POLLING (For Students)
 // =================================================================
 
 function startNotificationPolling() {
@@ -124,8 +124,8 @@ function showProposalPopup(proposalData) {
   overlay.appendChild(popup);
   document.body.appendChild(overlay);
 
-  document.getElementById('acceptBtn').onclick = () => {
-    fetch(`${backendUrl}/api/proposals/${proposalData.id}/respond`, {
+  document.getElementById('acceptBtn').onclick = async () => {
+    await fetch(`${backendUrl}/api/proposals/${proposalData.id}/respond`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ response: 'accepted' })
@@ -133,14 +133,37 @@ function showProposalPopup(proposalData) {
     document.body.removeChild(overlay);
   };
 
-  document.getElementById('rejectBtn').onclick = () => {
-    fetch(`${backendUrl}/api/proposals/${proposalData.id}/respond`, {
+  document.getElementById('rejectBtn').onclick = async () => {
+    await fetch(`${backendUrl}/api/proposals/${proposalData.id}/respond`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ response: 'rejected' })
     });
     document.body.removeChild(overlay);
   };
+}
+
+
+// =================================================================
+// RESPONSE POLLING (For Tutors)
+// =================================================================
+
+function startResponsePolling() {
+  const username = localStorage.getItem('userNumber');
+  if (!username) return;
+
+  setInterval(async () => {
+    try {
+      const response = await fetch(`${backendUrl}/api/updates/${username}`);
+      const data = await response.json();
+
+      if (data && data.type === 'proposalResponse') {
+        alert(`Student ${data.data.studentName} has ${data.data.status} your tutor offer on '${data.data.topic}'.`);
+      }
+    } catch (err) {
+      console.error("Polling for tutor responses failed:", err);
+    }
+  }, 5000);
 }
 
 
@@ -234,7 +257,7 @@ function autoFillTutorForm() {
 
 
 // =================================================================
-// SUBMIT FUNCTIONS (API Calls)
+// SUBMIT FUNCTIONS
 // =================================================================
 
 function submitLearn() {
@@ -424,5 +447,6 @@ function openRequestModal(topicName, recipientUsername) {
 // AUTO START POLLING ON PAGE LOAD
 // =================================================================
 document.addEventListener('DOMContentLoaded', function() {
-    startNotificationPolling();
+  startNotificationPolling();
+  startResponsePolling(); // 🔔 tutor gets alert when student accepts/rejects
 });
