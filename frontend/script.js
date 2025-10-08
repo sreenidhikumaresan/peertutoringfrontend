@@ -2,7 +2,6 @@
 // CONFIGURATION
 // =================================================================
 const backendUrl = 'https://pse10-backend-app-aehgg5eaf6hkh5g4.centralindia-01.azurewebsites.net';
-// Note: The WebPubSubClient library must be imported in your HTML files.
 
 // =================================================================
 // LOGIN & SIGNUP FUNCTIONS
@@ -19,11 +18,9 @@ function showErrorMessage(message) {
 function login() {
   const username = document.getElementById('name')?.value?.trim();
   const password = document.getElementById('password')?.value?.trim();
-
   if (!username || !password) {
     return showErrorMessage('Please enter your username and password.');
   }
-
   fetch(`${backendUrl}/api/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -48,20 +45,16 @@ function signup() {
   const username = document.getElementById('signupUsername')?.value?.trim();
   const email = document.getElementById('signupEmail')?.value?.trim();
   const password = document.getElementById('signupPassword')?.value?.trim();
-
   if (!name || !username || !email || !password) {
     return showErrorMessage('Please fill in all signup details.');
   }
-
   fetch(`${backendUrl}/api/signup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, username, email, password })
   })
   .then(response => {
-    if (!response.ok) {
-        return response.json().then(err => { throw new Error(err.message) });
-    }
+    if (!response.ok) { return response.json().then(err => { throw new Error(err.message) }); }
     return response.json();
   })
   .then(data => {
@@ -74,42 +67,42 @@ function signup() {
 }
 
 // =================================================================
-// REAL-TIME NOTIFICATION FUNCTIONS
+// NOTIFICATION POLLING FUNCTIONS
 // =================================================================
 
-async function connectToWebPubSub() {
+function startNotificationPolling() {
   const username = localStorage.getItem('userNumber');
-  if (!username || typeof WebPubSubClient === 'undefined') {
-    console.log("Not connecting to WebPubSub: user not logged in or library not found.");
-    return;
-  }
+  if (!username) return;
 
-  try {
-    const response = await fetch(`${backendUrl}/negotiate?username=${username}`);
-    const data = await response.json();
-    const client = new WebPubSubClient(data.url);
+  setInterval(async () => {
+    if (document.getElementById('proposalOverlay')) return;
 
-    client.on("server-message", (e) => {
-      const notification = e.message.data;
-      console.log("Received notification:", notification);
-      
-      if (notification.type === 'newProposal') {
+    try {
+      const response = await fetch(`${backendUrl}/api/notifications/${username}`);
+      const notification = await response.json();
+      if (notification && notification.type === 'newProposal') {
         showProposalPopup(notification.data);
-      } else if (notification.type === 'proposalResponse') {
-        alert(`Your proposal for the topic "${notification.data.topic}" was ${notification.data.status} by ${notification.data.recipient}.`);
       }
-    });
+    } catch (err) {
+      console.error("Polling for new proposals failed:", err);
+    }
+    
+    try {
+        const response = await fetch(`${backendUrl}/api/proposal-status/${username}`);
+        const notification = await response.json();
+        if (notification && notification.type === 'proposalResponse') {
+            alert(`Your offer for the topic "${notification.data.topic}" was ${notification.data.status} by student ${notification.data.recipient}.`);
+        }
+    } catch (err) {
+        console.error("Polling for proposal status failed:", err);
+    }
 
-    await client.start();
-    console.log("Connected to real-time notification service.");
-
-  } catch (err) {
-    console.error("Failed to connect to real-time service:", err);
-  }
+  }, 5000); // Check every 5 seconds
 }
 
 function showProposalPopup(proposalData) {
   const overlay = document.createElement('div');
+  overlay.id = 'proposalOverlay';
   overlay.className = 'modal-overlay';
   
   const popup = document.createElement('div');
@@ -153,17 +146,12 @@ function showProposalPopup(proposalData) {
   };
 }
 
-
 // =================================================================
 // PASSWORD RESET FUNCTIONS
 // =================================================================
-
 function requestPasswordReset() {
   const email = document.getElementById('email')?.value?.trim();
-  if (!email) {
-    return showErrorMessage('Please enter your registered email.');
-  }
-
+  if (!email) return showErrorMessage('Please enter your registered email.');
   fetch(`${backendUrl}/api/forgot-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -174,9 +162,7 @@ function requestPasswordReset() {
     alert(data.message + " For testing, check the backend's Log stream for the reset link.");
     window.location.href = 'index.html';
   })
-  .catch(error => {
-    showErrorMessage('An error occurred. Please try again.');
-  });
+  .catch(() => { showErrorMessage('An error occurred. Please try again.'); });
 }
 
 function verifyResetToken() {
@@ -191,13 +177,8 @@ function submitNewPassword() {
   const token = getQueryParam('token');
   const newPassword = document.getElementById('newPassword')?.value?.trim();
   const confirmPassword = document.getElementById('confirmPassword')?.value?.trim();
-
-  if (!newPassword || !confirmPassword) {
-    return showErrorMessage('Please enter and confirm your new password.');
-  }
-  if (newPassword !== confirmPassword) {
-    return showErrorMessage('Passwords do not match.');
-  }
+  if (!newPassword || !confirmPassword) return showErrorMessage('Please enter and confirm your new password.');
+  if (newPassword !== confirmPassword) return showErrorMessage('Passwords do not match.');
 
   fetch(`${backendUrl}/api/reset-password`, {
     method: 'POST',
@@ -205,9 +186,7 @@ function submitNewPassword() {
     body: JSON.stringify({ token: token, password: newPassword })
   })
   .then(response => {
-    if (!response.ok) {
-        return response.json().then(err => { throw new Error(err.message) });
-    }
+    if (!response.ok) { return response.json().then(err => { throw new Error(err.message) }); }
     return response.json();
   })
   .then(data => {
@@ -219,11 +198,9 @@ function submitNewPassword() {
   });
 }
 
-
 // =================================================================
 // OTHER HELPER FUNCTIONS
 // =================================================================
-
 function getQueryParam(name) {
   const params = new URLSearchParams(window.location.search);
   return params.get(name);
@@ -245,12 +222,10 @@ function autoFillTutorForm() {
 // =================================================================
 // SUBMIT FUNCTIONS (API Calls)
 // =================================================================
-
 function submitLearn() {
   const topic = document.getElementById('learnTopic')?.value?.trim();
   const filename = document.getElementById('learnFile')?.files[0]?.name || '';
   const username = localStorage.getItem('userNumber');
-
   if (!topic || !filename) {
     alert('Please enter a topic and choose a file.');
     return;
@@ -262,11 +237,11 @@ function submitLearn() {
     body: JSON.stringify(learnRequestData)
   })
   .then(response => response.json())
-  .then(data => {
+  .then(() => {
     alert('Learning request submitted!');
     window.location.href = 'profile.html';
   })
-  .catch(error => {
+  .catch(() => {
     alert('Failed to submit request. Please try again.');
   });
 }
@@ -286,11 +261,11 @@ function submitTutor() {
     body: JSON.stringify(tutorOfferData)
   })
   .then(response => response.json())
-  .then(data => {
+  .then(() => {
     alert('Tutor details submitted!');
     window.location.href = 'profile.html';
   })
-  .catch(error => {
+  .catch(() => {
     alert('Failed to submit offer. Please try again.');
   });
 }
@@ -298,12 +273,11 @@ function submitTutor() {
 // =================================================================
 // LOAD DATA & MODAL FUNCTIONS
 // =================================================================
-
 function loadTutorPoints() {
-    const tutorPointsEl = document.getElementById('tutorPoints');
-    if (tutorPointsEl) {
-        tutorPointsEl.innerText = '10';
-    }
+  const tutorPointsEl = document.getElementById('tutorPoints');
+  if (tutorPointsEl) {
+    tutorPointsEl.innerText = '10';
+  }
 }
 
 function loadProfile() {
@@ -332,11 +306,10 @@ function loadProfile() {
             });
         }
       })
-      .catch(error => {
+      .catch(() => {
         learnList.innerHTML = '<li>Could not load learning requests.</li>';
       });
   }
-  
   loadTutorPoints();
 }
 
@@ -366,7 +339,7 @@ function loadTutorList() {
         container.appendChild(card);
       });
     })
-    .catch(error => {
+    .catch(() => {
       container.innerHTML = '<p>Could not load topic list. Please try again later.</p>';
     });
 }
@@ -428,7 +401,7 @@ function openRequestModal(topicName, recipientUsername) {
   };
 }
 
-// Automatically connect to the notification service on pages that need it
+// --- AUTO-START POLLING ON PAGE LOAD ---
 document.addEventListener('DOMContentLoaded', function() {
-    connectToWebPubSub();
+    startNotificationPolling();
 });
